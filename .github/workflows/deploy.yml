@@ -28,7 +28,12 @@ jobs:
             source venv/bin/activate
 
             pip install -r requirements.txt
+            # Stop the existing app if it is running
+            PID=$(pgrep -f "python3 app.py" | head -n 1)
+            if [ -n "$PID" ]; then
+              kill "$PID"
+              sleep 2
+            fi
 
-            pkill -f "python3 app.py" || true
-
+           # Start the new version
             PORT=8087 nohup python3 app.py > app.log 2>&1 &
