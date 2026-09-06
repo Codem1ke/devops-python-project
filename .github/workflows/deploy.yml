@@ -29,12 +29,27 @@ jobs:
 
             pip install -r requirements.txt
 
-            # Stop the existing app if it is running
-            PID=$(pgrep -f "python3 app.py" | head -n 1)
-            if [ -n "$PID" ]; then
-              kill "$PID"
-              sleep 2
+            # Stop the existing app using its PID file
+            if [ -f app.pid ]; then
+              PID=$(cat app.pid)
+
+              if kill -0 "$PID" 2>/dev/null; then
+                kill "$PID"
+                sleep 2
+              fi
+
+              rm -f app.pid
             fi
 
-            # Start the new version
-            PORT=8087 nohup python3 app.py > app.log 2>&1 &
+            # Start the app on port 8087
+            nohup env PORT=8087 python3 app.py > app.log 2>&1 < /dev/null &
+
+            # Save the app's PID
+            echo $! > app.pid
+
+            sleep 2
+
+            # Verify the application
+            curl -f http://localhost:8087/health
+
+            echo "Deployment successful!"
