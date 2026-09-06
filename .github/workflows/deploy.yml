@@ -16,9 +16,9 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.2
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: "${{ secrets.EC2_HOST }}"
+          username: "${{ secrets.EC2_USER }}"
+          key: "${{ secrets.EC2_SSH_KEY }}"
           script: |
             cd ~/devops-python-project
 
@@ -28,6 +28,7 @@ jobs:
             source venv/bin/activate
 
             pip install -r requirements.txt
+
             # Stop the existing app if it is running
             PID=$(pgrep -f "python3 app.py" | head -n 1)
             if [ -n "$PID" ]; then
@@ -35,5 +36,5 @@ jobs:
               sleep 2
             fi
 
-           # Start the new version
+            # Start the new version
             PORT=8087 nohup python3 app.py > app.log 2>&1 &
